@@ -2,16 +2,15 @@
   {
     "name": "Nyaa.si",
     "id": "nyaasi",
-    "description": "Recherche sur Nyaa.si en utilisant la methode de scraping la plus robuste.",
-    "version": "1.0.2-canary-test",
+    "description": "Recherche sur Nyaa.si en utilisant la méthode de scraping, conforme à l'architecture de Hayase.",
+    "version": "3.0.0",
     "type": "torrent",
     "accuracy": "high",
     "media": "both",
     "languages": ["FR", "US", "GB"],
     "icon": "https://nyaa.si/static/favicon.png",
-    "update": "gh:Dohzu/hayase-nyaasi-extension",
     "code": {
-      "inline": "export async function single(e){console.log('!!! HAYASE NYAASI SINGLE FUNCTION WAS CALLED !!!');return[]}export async function batch(e){console.log('!!! HAYASE NYAASI BATCH FUNCTION WAS CALLED !!!');return[]}export async function movie(e){console.log('!!! HAYASE NYAASI MOVIE FUNCTION WAS CALLED !!!');return[]}export async function test(){console.log('!!! HAYASE NYAASI TEST FUNCTION WAS CALLED !!!');return!0}"
+      "inline": "class NyaaSiSource{_parseSize(e){try{const t=parseFloat(e);return e.includes(\"GiB\")?1073741824*t:e.includes(\"MiB\")?1048576*t:e.includes(\"KiB\")?1024*t:t}catch(e){return 0}}async _search(e){const t=`https://nyaa.si/?f=0&c=1_0&q=${encodeURIComponent(e)}`;try{const e=await fetch(t);if(!e.ok)return[];const r=await e.text(),n=(new DOMParser).parseFromString(r,\"text/html\"),o=[];const s=n.querySelectorAll(\"table.torrent-list tbody tr\");for(const e of s)try{const t=e.querySelectorAll(\"td\");if(t.length<8)continue;const r=t[1]?.querySelector(\"a:not(.comments)\"),n=t[2]?.querySelector('a[href^=\"magnet:\"]'),s=t[1]?.querySelector('a[href^=\"/view/\"]'),a=t[4]?.getAttribute(\"data-timestamp\");if(r&&n&&s&&a){const e=n.href.match(/btih:([a-fA-F0-9]{40})/);o.push({title:r.textContent.trim(),link:n.href,id:parseInt(s.href.split(\"/\").pop(),10)||0,seeders:parseInt(t[5]?.textContent,10)||0,leechers:parseInt(t[6]?.textContent,10)||0,downloads:parseInt(t[7]?.textContent,10)||0,hash:e?e[1].toLowerCase():\"\",size:this._parseSize(t[3]?.textContent||\"0\"),date:new Date(1e3*parseInt(a,10)),accuracy:\"high\"})}}catch(e){}return o}catch(e){return[]}}async single(e){if(!e?.titles?.length)return[];const t=`${e.titles[0]} ${String(e.episode).padStart(2,\"0\")}`;return this._search(t)}async batch(e){return e?.titles?.length?this._search(e.titles[0]):[]}async movie(e){return e?.titles?.length?this._search(e.titles[0]):[]}async test(){try{const e=await this._search(\"test\");return Array.isArray(e)}catch(e){return!1}}}export default new NyaaSiSource;"
     }
   }
 ]
