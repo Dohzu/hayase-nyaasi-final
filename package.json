@@ -1,0 +1,8 @@
+{
+  "name": "hayase-nyaasi-extension",
+  "version": "1.0.0",
+  "description": "Extension Hayase pour Nyaa.si",
+  "main": "index.json",
+  "types": "index.d.ts"
+}
+

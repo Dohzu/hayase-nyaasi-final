@@ -1,0 +1,18 @@
+[
+  {
+    "name": "Nyaa.si",
+    "id": "nyaasi",
+    "description": "Recherche sur Nyaa.si en utilisant la methode de scraping la plus robuste.",
+    "version": "1.0.0",
+    "type": "torrent",
+    "accuracy": "high",
+    "media": "both",
+    "languages": ["FR", "US", "GB"],
+    "icon": "https://nyaa.si/static/favicon.png",
+    "update": "gh:Dohzu/hayase-nyaasi-extension",
+    "code": {
+      "inline": "async function _search(query){const searchUrl=`https://nyaa.si/?f=0&c=1_0&q=${encodeURIComponent(query)}`;try{const response=await fetch(searchUrl);if(!response.ok)return[];const html=await response.text();const doc=(new DOMParser).parseFromString(html,'text/html');const torrents=[];const rows=doc.querySelectorAll('table.torrent-list tbody tr');for(const row of rows){try{const cells=row.querySelectorAll('td');if(cells.length<8)continue;const titleLink=cells[1]?.querySelector('a:not(.comments)');const magnetLink=cells[2]?.querySelector('a[href^=\"magnet:\"]');const viewLink=cells[1]?.querySelector('a[href^=\"/view/\"]');const timestampAttr=cells[4]?.getAttribute('data-timestamp');if(!titleLink||!magnetLink||!viewLink||!timestampAttr)continue;const hashMatch=magnetLink.href.match(/btih:([a-fA-F0-9]{40})/);torrents.push({title:titleLink.textContent.trim(),link:magnetLink.href,id:parseInt(viewLink.href.split('/').pop(),10)||0,seeders:parseInt(cells[5]?.textContent,10)||0,leechers:parseInt(cells[6]?.textContent,10)||0,downloads:parseInt(cells[7]?.textContent,10)||0,hash:hashMatch?hashMatch[1].toLowerCase():'',size:_parseSize(cells[3]?.textContent||'0'),date:new Date(parseInt(timestampAttr,10)*1000),accuracy:'high'})}catch(e){console.warn('[Hayase Nyaa.si] Failed to parse row:',e)}}return torrents}catch(error){console.error('[Hayase Nyaa.si] Critical error:',error);return[]}}function _parseSize(sizeStr){try{const size=parseFloat(sizeStr);if(sizeStr.includes('GiB'))return size*1024*1024*1024;if(sizeStr.includes('MiB'))return size*1024*1024;if(sizeStr.includes('KiB'))return size*1024;return size}catch{return 0}}export async function single(query){if(!query?.titles?.length)return[];const searchQuery=`${query.titles[0]} ${String(query.episode).padStart(2,'0')}`;return _search(searchQuery)}export async function batch(query){if(!query?.titles?.length)return[];return _search(query.titles[0])}export async function movie(query){if(!query?.titles?.length)return[];return _search(query.titles[0])}export async function test(){try{const results=await _search('test');return Array.isArray(results)}catch(e){return!1}}"
+    }
+  }
+]
+
