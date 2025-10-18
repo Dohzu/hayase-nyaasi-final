@@ -3,7 +3,7 @@
     "name": "Nyaa.si",
     "id": "nyaasi",
     "description": "Recherche sur Nyaa.si en utilisant la methode de scraping la plus robuste.",
-    "version": "1.0.1-debug",
+    "version": "1.0.2-canary-test",
     "type": "torrent",
     "accuracy": "high",
     "media": "both",
@@ -11,7 +11,7 @@
     "icon": "https://nyaa.si/static/favicon.png",
     "update": "gh:Dohzu/hayase-nyaasi-extension",
     "code": {
-      "inline": "async function _search(e){console.log(\"[Hayase Nyaa.si] Starting search for:\",e);const t=`https://nyaa.si/?f=0&c=1_0&q=${encodeURIComponent(e)}`;try{const e=await fetch(t);if(!e.ok)return console.error(\"[Hayase Nyaa.si] Fetch failed with status:\",e.status),[];const r=await e.text();console.log(\"[Hayase Nyaa.si] HTML content fetched successfully.\");const n=(new DOMParser).parseFromString(r,\"text/html\"),o=[];const s=n.querySelectorAll(\"table.torrent-list tbody tr\");if(console.log(`[Hayase Nyaa.si] Found ${s.length} rows in the torrent table.`),0===s.length&&console.warn(\"[Hayase Nyaa.si] No torrents found on the page. The website structure might have changed.\"),s)for(const e of s)try{const t=e.querySelectorAll(\"td\");if(t.length<8){console.warn(\"[Hayase Nyaa.si] Skipping a row with less than 8 cells.\");continue}const r=t[1]?.querySelector(\"a:not(.comments)\"),n=t[2]?.querySelector('a[href^=\"magnet:\"]'),s=t[1]?.querySelector('a[href^=\"/view/\"]'),a=t[4]?.getAttribute(\"data-timestamp\");if(!r||!n||!s||!a)continue;const i=n.href.match(/btih:([a-fA-F0-9]{40})/);o.push({title:r.textContent.trim(),link:n.href,id:parseInt(s.href.split(\"/\").pop(),10)||0,seeders:parseInt(t[5]?.textContent,10)||0,leechers:parseInt(t[6]?.textContent,10)||0,downloads:parseInt(t[7]?.textContent,10)||0,hash:i?i[1].toLowerCase():\"\",size:_parseSize(t[3]?.textContent||\"0\"),date:new Date(1e3*parseInt(a,10)),accuracy:\"high\"})}catch(e){console.warn(\"[Hayase Nyaa.si] Failed to parse a row:\",e)}return console.log(`[Hayase Nyaa.si] Successfully parsed ${o.length} torrents.`),o}catch(e){return console.error(\"[Hayase Nyaa.si] A critical error occurred:\",e),[]}}function _parseSize(e){try{const t=parseFloat(e);return e.includes(\"GiB\")?1073741824*t:e.includes(\"MiB\")?1048576*t:e.includes(\"KiB\")?1024*t:t}catch(e){return 0}}export async function single(e){if(!e?.titles?.length)return[];const t=`${e.titles[0]} ${String(e.episode).padStart(2,\"0\")}`;return _search(t)}export async function batch(e){return e?.titles?.length?_search(e.titles[0]):[]}export async function movie(e){return e?.titles?.length?_search(e.titles[0]):[]}export async function test(){try{const e=await _search(\"test\");return console.log(\"[Hayase Nyaa.si] Test function ran.\"),Array.isArray(e)}catch(e){return console.error(\"[Hayase Nyaa.si] Test function failed.\",e),!1}}"
+      "inline": "export async function single(e){console.log('!!! HAYASE NYAASI SINGLE FUNCTION WAS CALLED !!!');return[]}export async function batch(e){console.log('!!! HAYASE NYAASI BATCH FUNCTION WAS CALLED !!!');return[]}export async function movie(e){console.log('!!! HAYASE NYAASI MOVIE FUNCTION WAS CALLED !!!');return[]}export async function test(){console.log('!!! HAYASE NYAASI TEST FUNCTION WAS CALLED !!!');return!0}"
     }
   }
 ]
